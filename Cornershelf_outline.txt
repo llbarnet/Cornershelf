@@ -12,34 +12,45 @@ cornershelf.py:
 Will have 12 pages:
 1. /cornershelf
 (user cookbooks listed, button for login, create a cookbook, logout)
+
 2. /cornershelf/<int:cookbook_id>
 -Not Users Cookbook: view only
+
 3. /cornershelf/<int:cookbook_id>/<int:recipes_id>
 -Not Users Cookbook: view only (maybe a save recipe to my own cookbook button?)
+
 4. /cornershelf/username/<int:cookbook_id>
 -If user.id = cookbook.user_id (all recipes listed, button for add recipe )
+
 5. /cornershelf/username/<int:cookbook_id>/add
 - will have box to fill in new recipe and a button that says search for recipe
 -If user.id = cookbook.user_id
+
 6. /cornershelf/username/<int:cookbook_id>/<int:recipes_id>/edit
 -If user.id = cookbook.user_id, edit box will look a lot like add input fields but text already populated.
+
 7. /cornershelf/username/<int:cookbook_id>/<int:recipes_id>/delete
 -If user.id = cookbook.user_id, will have a "are you sure you want to delete %s recipe" %s recipes.name
+
 8. /cornershelf/search
 -Will try to incorporate yummly api and json to add recipes to own cookbook.
-9. /cornershelf/create_cookbook
+
+9. /cornershelf/createcookbook
 -will have to check for login first, then create cookbook input field. Only one cookbook per person will check with user id and cookbook id
+
 10./cornershelf/login
 -create own users? and google
+
 11./cornershelf/username/<int:cookbook_id>/<int:recipes_id> -If user.id = cookbook.user_id
 -will display recipe and will have edit/delete buttons on page.
+
 12./cornershelf/logout
 -will end session token for each user.
 
 database_setup.py:
 Table = User
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    username = Column(String(250), nullable=False)
     email = Column(String(50), nullable=False)
     cookbook_name = Column(String(150))
 
