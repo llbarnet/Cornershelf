@@ -19,35 +19,54 @@ session = DBSession()
 @app.route('/')
 @app.route('/cornershelf')
 def homepage():
-    return render_template('index.html')
+    cookbooks = session.query(Cookbook).all()
+    return render_template('index.html', cookbooks=cookbooks)
 
 # public cookbook view
 @app.route('/cornershelf/<int:cookbook_id>')
 def cookbookpublic(cookbook_id):
     if 'username' not in login_session or cookbook_user_id != user_id:
-        return render_template('publicCookbook.html')
+        cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
+        recipes=session.query(Recipes).filter_by(inCookbook=Cookbook_id).all()
+        return render_template('publicCookbook.html', cookbook=cookbook, recipes=recipes)
     else:
-        return redirect(url_for('cookbook.html'))
+        return redirect(url_for('cookbook'))
 
 
 # public recipe from cookbook view
 @app.route('/cornershelf/<int:cookbook_id>/<int:recipes_id>')
 def publicrecipes(cookbook_id, recipes_id):
-    if 'username' not in login_session or cookbook_user_id != user_id:
-        return render_template('publicRecipe.html')
+    if 'username' not in login_session or cookbook_userID != user_id:
+        cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
+        recipes=session.query(Recipes).filter_by(inCookbook=Cookbook_id).filter_by(id=recipes_id)
+        return render_template('publicRecipe.html', cookbook=cookbook, recipes=recipes)
     else:
-        return redirect(url_for('recipe.html'))
+        return redirect(url_for('recipe'))
 
 # a users cookbook viewpage
 @app.route('/conershelf/<int:user_id>/<int:cookbook_id>')
 def personalCookbook(user_id, cookbook_id):
-    return render_template('cookbook.html')
+    if cookbook_userID == user_id:
+        cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
+        recipes=session.query(Recipes).filter_by(inCookbook=Cookbook_id).all()
+        return render_template('cookbook.html', cookbook=cookbook, recipes=recipes)
+    else:
+        return redirect(url_for('publicCookbook' cookbook_id=cookbook_id))
 
 # add a recipe to a users cookbook
-@app.route('/conershelf/<int:user_id>/<int:cookbook_id>/add')
+@app.route('/conershelf/<int:user_id>/<int:cookbook_id>/add', Methods=['GET', 'POST'])
 def personalCookbookAdd(user_id, cookbook_id):
-    return render_template('addRecipe.html')
-
+    if cookbook_userID == user_id:
+        if request.method == 'POST':
+            newRecipe = Recipes(name=request.form['name'], ingredients=request.form['ingredients'], directions=request.form['directions'], type=request.form['type'], user_id=user_id, cookbook_id=cookbook_id)
+            session.add(newRecipe)
+            session.commit()
+            return redirect(url_for('cookbook', user_id=user_id, cookbook_id=cookbook_id))
+        else:
+            return render_template('addRecipe.html', user_id=user_id, cookbook_id=cookbook_id)
+        return render_template('addRecipe.html', user_id=user_id, cookbook_id=cookbook_id)
+    else:
+        return redirect(url_for('publicCookbook' cookbook_id=cookbook_id))
 # edit a recipe in a users cookbook
 @app.route('/conershelf/<int:user_id>/<int:cookbook_id>/<int:recipes_id>/edit')
 def personalCookbookEdit(user_id, cookbook_id, recipes_id):
