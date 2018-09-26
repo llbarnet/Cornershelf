@@ -13,15 +13,15 @@ class User(Base) :
     id = Column(Integer, primary_key=True)
     username = Column(String(250), nullable=False)
     email = Column(String(50), nullable=False)
-    cookbook_name = Column(String(150))
+    cookbookName = Column(String(150))
 
 
 
 class Cookbook(Base) :
     __tablename__ = 'cookbook'
     id = Column(Integer, primary_key=True)
-    name = Column(String(150), ForeignKey('user.cookbook_name'), nullable=False)
-    user_id = Column(Integer, ForeignKey('user.id'))
+    name = Column(String(150), ForeignKey('user.cookbookName'), nullable=False)
+    userID = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
     @property
@@ -39,9 +39,9 @@ class Recipes(Base) :
      ingredients = Column(String(300), nullable = False)
      directions = Column(String(800), nullable = False)
      type = Column(String(50))
-     cookbook_id = Column(Integer, ForeignKey('cookbook.id'))
+     inCookbook = Column(Integer, ForeignKey('cookbook.id'))
      cookbook = relationship(Cookbook)
-     user_id = Column(Integer, ForeignKey('user.id'))
+     userID = Column(Integer, ForeignKey('user.id'))
      user = relationship(User)
 
      @property
