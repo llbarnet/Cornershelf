@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <title>CornerShelf</title>
+  </head>
+<body>
+
+  <a href="{{url_for('login')}}"> Login </a>
+  <a href='/cornershelf/logout'> Logout </a>
+
+  {% for recipes in Cookbook %}
+
+   <a href = "{{url_for('publicRecipe', cookbook_id=cookbook.id, recipes_id=recipes.id)}}"> <p>{{recipes.name}}</p></a>
+
+  {% endfor %}
+
+
+
+  <a href="{{url_for('index')}}">Home</a>
+
+
+
+
+</body>
+</html>
