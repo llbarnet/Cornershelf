@@ -38,7 +38,7 @@ def cookbookpublic(cookbook_id):
 def publicrecipes(cookbook_id, recipes_id):
     if 'username' not in login_session or cookbook_userID != user_id:
         cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
-        recipes=session.query(Recipes).filter_by(inCookbook=Cookbook_id).filter_by(id=recipes_id)
+        recipes=session.query(Recipes).filter_by(inCookbook=Cookbook_id).filter_by(id=recipes_id).one()
         return render_template('publicRecipe.html', cookbook=cookbook, recipes=recipes)
     else:
         return redirect(url_for('recipe'))
@@ -63,33 +63,73 @@ def personalCookbookAdd(user_id, cookbook_id):
             session.commit()
             return redirect(url_for('cookbook', user_id=user_id, cookbook_id=cookbook_id))
         else:
-            return render_template('addRecipe.html', user_id=user_id, cookbook_id=cookbook_id)
-        return render_template('addRecipe.html', user_id=user_id, cookbook_id=cookbook_id)
+            return render_template('addRecipe.html', user_id=user_id, cookbook_id=cookbook_id, recipes_id=recipes_id)
+        return render_template('addRecipe.html', user=user, cookbook=cookbook, recipes=recipes)
     else:
         return redirect(url_for('publicCookbook' cookbook_id=cookbook_id))
+
+
 # edit a recipe in a users cookbook
-@app.route('/conershelf/<int:user_id>/<int:cookbook_id>/<int:recipes_id>/edit')
+@app.route('/conershelf/<int:user_id>/<int:cookbook_id>/<int:recipes_id>/edit', Methods=['GET', 'POST'])
 def personalCookbookEdit(user_id, cookbook_id, recipes_id):
-    return render_template('editRecipe.html')
+    if cookbook_userID == user_id:
+        editedRecipe = session.query(Recipes).filter_by(id=recipes_id).one()
+        if request.method == 'POST':
+            if request.form['name']:
+                editedRecipe.name=request.form['name']
+            if request.form['ingredients']:
+                editedRecipe.ingredients=request.form['ingredients']
+            if request.form['directions']:
+                editedRecipe.directions=request.form['directions']
+            if request.form['type']:
+                editedRecipe.type=request.form['type']
+            session.add(editedRecipe)
+            session.commit()
+            return redirect(url_for('recipe', user_id=user_id, cookbook_id=cookbook_id, recipes_id=recipes_id))
+        else:
+            return render_template('eidtRecipe.html', user=user, cookbook=cookbook, recipes=editedRecipe)
+    else:
+        return redirect(url_for('publicCookbook' cookbook_id=cookbook_id))
+
+
 
 # delete a recipe from a users cookbook
-@app.route('/conershelf/<int:user_id>/<int:cookbook_id>/<int:recipes_id>/delete')
+
+@app.route('/conershelf/<int:user_id>/<int:cookbook_id>/<int:recipes_id>/delete', methods=['GET', 'POST'])
 def personalCookbookDelete(user_id, cookbook_id, recipes_id):
-    return render_template('deleteRecipe.html')
+    if cookbook_userID == user_id:
+        deleteRecipe = session.query(Recipes).filter_by(id=recipes_id).one()
+        if request.method == 'POST':
+            session.delete(itemToDelete)
+            session.commit()
+            return redirect(url_for('recipe', user_id=user_id, cookbook_id=cookbook_id, recipes_id=recipes_id))
+        else:
+            return render_template('deleteRecipe.html', cookbook=cookbook, recipes=deleteRecipe)
+    return render_template('deleteRecipe.html', user=user, cookbook=cookbook, recipes=recipes)
+
+    else:
+        return redirect(url_for('publicCookbook' cookbook_id=cookbook_id))
 
 
 # search for a recipe to add to your cookbook using the yummly API "fingers crossed"
 @app.route('/cornershelf/search')
 def search():
-    return render_template('search.html')
+    return render_template('searchRecipe.html')
 
 # if user is new or does not have a cook book, will be able to create a cookbook
-@app.route('/cornershelf/createcookbook')
+@app.route('/cornershelf/<int:user_id>/createcookbook')
 def createCookbookNew():
     if username not in login_session:
         return redirect(url_for('login.html'))
     if user_id is not in Cookbook:
-        return render_template()
+        if request.method == 'POST':
+        newCookbook = Cookbook(name=request.form['name'], userID=user_id)
+        session.add(newCookbook)
+        session.commit()
+        return redirect(url_for('cookbook', user_id=user_id, cookbook_id=cookbook_id))
+    else:
+        return render_template('createCookbook.html')
+        
 
 # a login page for users to create login or use google+
 @app.route('/cornershelf/login')
@@ -102,7 +142,14 @@ def login():
 # display a recipe from a users cookbook, will have the edit/delete options
 @app.route('/conershelf/<int:user_id>/<int:cookbook_id>/<int:recipes_id>')
 def personalRecipe(user_id, cookbook_id, recipes_id):
-    return render_template('recipe.html')
+    if cookbook_userID == user_id:
+        cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
+        recipes=session.query(Recipes).filter_by(inCookbook=Cookbook_id).filter_by(id=recipes_id).one()
+        return render_template('recipe.html', cookbook=cookbook, recipes=recipes)
+    else:
+        return redirect(url_for('publicRecipe', cookbook_id=cookbook_id, recipes_id=recipes_id))
+
+
 # logout route for disconnect from personal session and google session
 @app.route('/cornershelf/logout')
 
