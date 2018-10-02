@@ -12,17 +12,17 @@ class User(Base) :
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     username = Column(String(250), nullable=False)
-    email = Column(String(50), nullable=False)
-    cookbookName = Column(String(150))
-
+    email = Column(String(250), nullable=False)
+    cookbookName = relationship("Cookbook", backref='cookbook.name')
 
 
 class Cookbook(Base) :
     __tablename__ = 'cookbook'
     id = Column(Integer, primary_key=True)
-    name = Column(String(150), ForeignKey('user.cookbookName'), nullable=False)
+    name = Column(String(150), nullable=False)
     userID = Column(Integer, ForeignKey('user.id'))
-    user = relationship(User)
+    user = relationship("User", foreign_keys=[userID])
+
 
     @property
     def serialize(self):
@@ -39,10 +39,10 @@ class Recipes(Base) :
      ingredients = Column(String(300), nullable = False)
      directions = Column(String(800), nullable = False)
      type = Column(String(50))
-     inCookbook = Column(Integer, ForeignKey('cookbook.id'))
-     cookbook = relationship(Cookbook)
+     cookbookID = Column(Integer, ForeignKey('cookbook.id'))
+     cookbook = relationship("Cookbook", foreign_keys=[cookbookID])
      userID = Column(Integer, ForeignKey('user.id'))
-     user = relationship(User)
+     user = relationship("User", foreign_keys=[userID])
 
      @property
      def serialize(self):
