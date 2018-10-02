@@ -7,9 +7,9 @@
   </head>
   <body>
     <h1>CornerShelf</h1>
-    <a href='/cornershelf/logout'> Logout </a>
+    <a href='{{url_for('gdisconnect')}}'> Logout </a>
 
-    <a href="{{url_for('Cookbook', user_id=user.id, cookbook_id=cookbook.id )}}">{{cookbook.name}}</a>
+    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}">Back to {{cookbook.name}}</a>
 
 
 
@@ -21,8 +21,8 @@
 
   </form>
 
-  <a href = '#'> Cancel </a>
-    <a href="{{url_for('index')}}">Home</a>
+  <a href = '{{url_for('personalRecipe', cookbook_id=cookbook.id, recipes_id=recipes.id)}}'> Cancel </a>
+    <a href="{{url_for('homepage')}}">Home</a>
 
 
 

@@ -7,19 +7,19 @@
   </head>
   <body>
     <h1>CornerShelf</h1>
-    <a href='/cornershelf/logout'> Logout </a>
+    <a href='{{url_for('gdisconnect')}}'> Logout </a>
 
-    <a href="{{url_for('Cookbook', user_id=user.id, cookbook_id=cookbook.id )}}">{{cookbook.name}}</a>
+    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}">Back to {{cookbook.name}}</a>
 
     <h1>{{ recipes.name }}</h1>
-    <h2>{{ recipes.ingredients }}</h2>
-    <h2>{{ recipes.directions }}</h2>
-    <h2>{{ recipes.type }}</h2>
+    <h2>Type: {{ recipes.type }}</h2>
+    <h2>Ingredients: {{ recipes.ingredients }}</h2>
+    <h2>Directions: {{ recipes.directions }}</h2>
 
-    <a href="{{url_for('editRecipe', user_id=user.id, cookbook_id=cookbook.id, recipes_id=recipe.id )}}">Edit Recipe</a>
-    <a href="{{url_for('deleteRecipe', user_id=user.id, cookbook_id=cookbook.id, recipes_id=recipes.id )}}">Delete Recipe</a>
+    <a href="{{url_for('personalCookbookEdit', cookbook_id=cookbook.id, recipes_id=recipes.id )}}">Edit Recipe</a>
+    <a href="{{url_for('personalCookbookDelete', cookbook_id=cookbook.id, recipes_id=recipes.id )}}">Delete Recipe</a>
 
-    <a href="{{url_for('index')}}">Home</a>
+    <a href="{{url_for('homepage')}}">Home</a>
 
 
 

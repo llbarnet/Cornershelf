@@ -8,17 +8,16 @@
 <body>
 
   <a href="{{url_for('login')}}"> Login </a>
-  <a href='/cornershelf/logout'> Logout </a>
+  <a href='{{url_for('gdisconnect')}}'> Logout </a>
 
   {% for recipes in Cookbook %}
 
-   <a href = "{{url_for('publicRecipe', cookbook_id=cookbook.id, recipes_id=recipes.id)}}"> <p>{{recipes.name}}</p></a>
-
+  <a href = "{{url_for('publicrecipes', cookbook_id=recipe.cookbookID, recipes_id=recipe.id)}}"> <h1>{{recipe.name}}</h1></a>
   {% endfor %}
 
 
 
-  <a href="{{url_for('index')}}">Home</a>
+  <a href="{{url_for('homepage')}}">Home</a>
 
 
 

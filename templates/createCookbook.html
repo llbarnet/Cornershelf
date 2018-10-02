@@ -7,9 +7,9 @@
   </head>
   <body>
     <h1>CornerShelf</h1>
-    <a href='/cornershelf/logout'> Logout </a>
+    <a href='{{url_for('gdisconnect')}}'> Logout </a>
 
- <h1>Add Recipe</h1>
+ <h1>Create a Cookbook!</h1>
  <form action='#' method='post'>
 
     <p>Cookbook Name</p>
@@ -18,7 +18,7 @@
 <input type='submit' value='create'>Create!</br>
 </form>
 
-    <a href="{{url_for('index')}}">Home</a>
+    <a href="{{url_for('homepage')}}">Home</a>
 
 
 

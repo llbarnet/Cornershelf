@@ -7,8 +7,10 @@
   </head>
   <body>
     <h1>CornerShelf</h1>
-    <a href='/cornershelf/logout'> Logout </a>
-    <a href="{{url_for('cookbook', user_id=user.id, cookbook_id=cookbook.id)}}">Back to Cookbook</a>
+    <a href='{{url_for('gdisconnect')}}'> Logout </a>
+  </br>
+    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id)}}">Back to {{cookbook.name}}</a>
+  </br>
  <h1>Add Recipe</h1>
  <form action='#' method='post'>
 
@@ -19,12 +21,13 @@
     <p>Directions</p>
       <input type="text" size="800" name="directions">
     <p>Type</p>
+    <input type ='radio'  name='type' value ='Breakfast'>Breakfast</br>
     <input type ='radio'  name='type' value ='Appetizer'>Appetizer</br>
     <input type ='radio'  name='type' value ='Soup'>Soup</br>
     <input type ='radio'  name='type' value ='Salad'>Salad</br>
     <input type ='radio'  name='type' value ='Sides'>Sides</br>
-    <input type ='radio'  name='type' value ='Vegetables'>Vegetables</br>
-    <input type ='radio'  name='type' value ='Meat'>Meat</br>
+    <input type ='radio'  name='type' value ='Lunch'>Lunch</br>
+    <input type ='radio'  name='type' value ='Dinner'>Dinner</br>
     <input type ='radio'  name='type' value ='Dessert'>Dessert</br>
     <input type ='radio'  name='type' value ='Drinks'>Drinks</br>
 
@@ -32,8 +35,9 @@
 
 <input type='submit' value='create'>
 </form>
-    <a href="{{url_for('searchRecipe')}}">Search for a recipe instead!</a>
-    <a href="{{url_for('index')}}">Home</a>
+
+    <a href="{{url_for('search')}}">Search for a recipe instead!</a>
+    <a href="{{url_for('homepage')}}">Home</a>
 
 
 

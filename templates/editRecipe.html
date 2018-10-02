@@ -7,9 +7,9 @@
   </head>
   <body>
     <h1>CornerShelf</h1>
-    <a href='/cornershelf/logout'> Logout </a>
+    <a href='{{url_for('gdisconnect')}}'> Logout </a></br>
 
-    <a href="{{url_for('Cookbook', user_id=user.id, cookbook_id=cookbook.id )}}">{{cookbook.name}}</a>
+    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}">Back to {{cookbook.name}}</a>
 
 
   <h1> Edit Your Recipe </h1>
@@ -20,10 +20,17 @@
     	<p>Recipe Name</p>
     		<input type ='text' size='80' name='name' placeholder = '{{recipes.name }}'>
     	<p>Ingredients</p>
-    		<input type ='text' size='300' name='ingredients' placeholder = '{{recipes.ingredient}}'>
+    		<input type ='text' size='300' name='ingredients' placeholder = '{{recipes.ingredients}}'>
     	<p>Directions</p>
-    		<input type ='text' size='800' name='Directions' placeholder = '{{recipes.directions}}'>
+    		<input type ='text' size='800' name='directions' placeholder = '{{recipes.directions}}'>
     	<p>Type<p>
+        {% if recipes.type == 'Breakfast'%}
+          <dd><input type ='radio' name='type' value='Breakfast'checked >Breakfast</dd>
+
+        {% else %}
+           <dd><input type ='radio' name='type' value='Breakfast'>Breakfast</dd>
+
+        {% endif %}
 
     	{% if recipes.type == 'Appetizer' %}
     		<dd><input type ='radio' name='type' value='Appetizer'checked >Appetizer</dd>
@@ -53,19 +60,19 @@
     		<dd><input type ='radio' name='type' value='Sides'>Sides</dd>
     	{% endif %}
 
-      {% if recipes.type == 'Vegetables'%}
-    		<dd><input type ='radio' name='type' value='Vegetables'checked >Vegetables</dd>
-
-    	{% else %}
-    	   <dd><input type ='radio' name='type' value='Vegetables'>Vegetables</dd>
-
-    	{% endif %}
-
-      {% if recipes.type == 'Meat'%}
-        <dd><input type ='radio' name='type' value='Meat'checked >Meat</dd>
+      {% if recipes.type == 'Lunch'%}
+        <dd><input type ='radio' name='type' value='Lunch'checked >Lunch</dd>
 
       {% else %}
-         <dd><input type ='radio' name='type' value='Meat'>Meat</dd>
+         <dd><input type ='radio' name='type' value='Lunch'>Lunch</dd>
+
+      {% endif %}
+
+      {% if recipes.type == 'Dinner'%}
+        <dd><input type ='radio' name='type' value='Dinner'checked >Dinner</dd>
+
+      {% else %}
+         <dd><input type ='radio' name='type' value='Dinner'>Dinner</dd>
 
       {% endif %}
 
@@ -77,7 +84,13 @@
 
       {% endif %}
 
+      {% if recipes.type == 'Drinks'%}
+        <dd><input type ='radio' name='type' value='Drinks'checked >Drinks</dd>
 
+      {% else %}
+         <dd><input type ='radio' name='type' value='Drinks'>Drinks</dd>
+
+      {% endif %}
     <input type='submit' value='Edit'>
 
 
@@ -86,9 +99,9 @@
 
     </form>
 
-  <a href = '#'> Cancel </a>
+  <a href = '{{url_for('personalRecipe', cookbook_id=cookbook.id, recipes_id=recipes.id)}}'> Cancel </a>
 
-  <a href="{{url_for('index')}}">Home</a>
+  <a href="{{url_for('homepage')}}">Home</a>
 
 
 
