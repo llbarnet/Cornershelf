@@ -11,13 +11,14 @@ from oauth2client.client import FlowExchangeError
 import httplib2
 from flask import make_response
 import requests
+import bleach
 
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Cornershelf"
 
-engine = create_engine('sqlite:///cornershelf.db')
+engine = create_engine('sqlite:///cornershelf.db',  pool_pre_ping=True)
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
@@ -118,23 +119,16 @@ def gconnect():
     flash("you are now logged in as %s" % login_session['username'])
     return output
 
-# User Helper Functions
-
+#create new user in database
 
 def createUser(login_session):
-    newUser = User(username=login_session['username'], email=login_session[
-                   'email'])
+    newUser = User(username=login_session['username'], email=login_session['email'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
-
-def getUserInfo(user_id):
-    user = session.query(User).filter_by(id=user_id).one()
-    return user
-
-
+#search for existing user with email
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
@@ -142,7 +136,12 @@ def getUserID(email):
     except:
         return None
 
-# to logout of a user session 
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+# to logout of a user session
 @app.route('/logout')
 def gdisconnect():
     # disconnect a connected user.
@@ -164,7 +163,7 @@ def gdisconnect():
 
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        return render_template('logout.html')
     else:
         # For whatever reason, the given token was invalid.
         response = make_response(
@@ -172,6 +171,23 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+#JSON APIs for cookbook and recipe views
+@app.route('/cornershelf/<int:cookbook_id>/<int:recipes_id>/JSON')
+def onerecipeJSON(cookbook_id, recipes_id):
+    cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
+    recipes=session.query(Recipes).filter_by(cookbookID=cookbook_id).filter_by(id=recipes_id).one()
+    return jsonify(recipes.serialize)
+
+@app.route('/cornershelf/<int:cookbook_id>/JSON')
+def cookbookrecipesJSON(cookbook_id):
+    cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
+    recipes=session.query(Recipes).filter_by(cookbookID=cookbook_id).all()
+    return jsonify(all_recipes=[i.serialize for i in recipes])
+
+@app.route('/cornershelf/JSON')
+def allcookbooksJSON():
+    cookbooks = session.query(Cookbook).all()
+    return jsonify(all_cookbooks=[i.serialize for i in cookbooks])
 
 
 
@@ -179,8 +195,14 @@ def gdisconnect():
 @app.route('/')
 @app.route('/cornershelf/')
 def homepage():
+    if 'username' not in login_session:
+        status = 'not logged in'
+
+    else:
+        status = login_session['user_id']
+
     cookbooks = session.query(Cookbook).all()
-    return render_template('index.html', cookbooks=cookbooks)
+    return render_template('index.html', cookbooks=cookbooks, status=status)
 
 # public cookbook view
 @app.route('/cornershelf/<int:cookbook_id>')
@@ -193,8 +215,10 @@ def cookbookpublic(cookbook_id):
 # public recipe from cookbook view
 @app.route('/cornershelf/<int:cookbook_id>/<int:recipes_id>')
 def publicrecipes(cookbook_id, recipes_id):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
-    recipes=session.query(Recipes).filter_by(cookbookID=Cookbook_id).filter_by(id=recipes_id).one()
+    recipes=session.query(Recipes).filter_by(cookbookID=cookbook_id).filter_by(id=recipes_id).one()
     return render_template('publicRecipe.html', cookbook=cookbook, recipes=recipes)
 
 # if user is new or does not have a cook book, will be able to create a cookbook
@@ -203,8 +227,8 @@ def createCookbookNew():
     if 'username' not in login_session:
         return redirect('cornershelf/login')
     if request.method == 'POST':
-        createCookbook = Cookbook(
-            name=request.form['name'], userID=login_session['user_id'])
+        clean_name=bleach.clean(request.form['name'])
+        createCookbook = Cookbook(name=clean_name, userID=login_session['user_id'])
         session.add(createCookbook)
         flash('%s was whipped up!' % createCookbook.name)
         session.commit()
@@ -215,31 +239,49 @@ def createCookbookNew():
 # a users cookbook viewpage
 @app.route('/cornershelf/u/<int:cookbook_id>')
 def personalCookbook(cookbook_id):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
     recipes=session.query(Recipes).filter_by(cookbookID=cookbook_id).all()
-    if cookbook.userID == login_session['user_id']:
-        return render_template('cookbook.html', cookbook=cookbook, recipes=recipes)
-    else:
+    owner=getUserInfo(cookbook.userID)
+    if 'username' not in login_session:
         return redirect(url_for('cookbookpublic', cookbook_id=cookbook_id))
+    if owner.id != login_session['user_id']:
+        return redirect(url_for('cookbookpublic', cookbook_id=cookbook_id))
+    else:
+        return render_template('cookbook.html', cookbook=cookbook, recipes=recipes)
 
 # display a recipe from a users cookbook, will have the edit/delete options
 @app.route('/cornershelf/u/<int:cookbook_id>/<int:recipes_id>')
 def personalRecipe(cookbook_id, recipes_id):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
     recipes=session.query(Recipes).filter_by(cookbookID=cookbook_id).filter_by(id=recipes_id).one()
-    if cookbook.userID == login_session['user_id']:
-        return render_template('recipe.html', cookbook=cookbook, recipes=recipes)
-    else:
+    owner=getUserInfo(cookbook.userID)
+    if 'username' not in login_session:
+        return redirect(url_for('cookbookpublic', cookbook_id=cookbook_id))
+    if owner.id != login_session['user_id']:
         return redirect(url_for('publicrecipes', cookbook_id=cookbook_id, recipes_id=recipes_id))
+    else:
+        return render_template('recipe.html', cookbook=cookbook, recipes=recipes)
 
 # add a recipe to a users cookbook
 @app.route('/cornershelf/u/<int:cookbook_id>/add', methods=['GET', 'POST'])
 def personalCookbookAdd(cookbook_id):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
-    if cookbook.userID != login_session['user_id']:
-        return redirect(url_for('publicCookbook', cookbook_id=cookbook_id))
+    owner=getUserInfo(cookbook.userID)
+    if 'username' not in login_session:
+        return redirect(url_for('cookbookpublic', cookbook_id=cookbook_id))
+    if owner.id != login_session['user_id']:
+        return redirect(url_for('cookbookpublic', cookbook_id=cookbook_id))
     if request.method == 'POST':
-        newRecipe = Recipes(name=request.form['name'], ingredients=request.form['ingredients'], directions=request.form['directions'], type=request.form['type'], cookbookID=cookbook_id)
+        clean_name=bleach.clean(request.form['name'])
+        clean_ingredients=bleach.clean(request.form['ingredients'])
+        clean_directions=bleach.clean(request.form['directions'])
+        newRecipe = Recipes(name=clean_name, ingredients=clean_ingredients, directions=clean_directions, type=request.form['type'], cookbookID=cookbook_id, userID=owner.id)
         session.add(newRecipe)
         session.commit()
         return redirect(url_for('personalCookbook', cookbook_id=cookbook_id))
@@ -251,17 +293,26 @@ def personalCookbookAdd(cookbook_id):
 # edit a recipe in a users cookbook
 @app.route('/cornershelf/u/<int:cookbook_id>/<int:recipes_id>/edit', methods=['GET', 'POST'])
 def personalCookbookEdit(cookbook_id, recipes_id):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
     editedRecipe = session.query(Recipes).filter_by(id=recipes_id).one()
-    if cookbook.userID != login_session['user_id']:
+    owner=getUserInfo(cookbook.userID)
+    if 'username' not in login_session:
+        return redirect(url_for('publicrecipes', cookbook_id=cookbook_id, recipes_id=recipes_id))
+    if owner.id != login_session['user_id']:
         return redirect(url_for('publicrecipes', cookbook_id=cookbook_id, recipes_id=recipes_id))
     if request.method == 'POST':
+        clean_name=bleach.clean(request.form['name'])
+        clean_ingredients=bleach.clean(request.form['ingredients'])
+        clean_directions=bleach.clean(request.form['directions'])
+
         if request.form['name']:
-            editedRecipe.name=request.form['name']
+            editedRecipe.name=clean_name
         if request.form['ingredients']:
-            editedRecipe.ingredients=request.form['ingredients']
+            editedRecipe.ingredients=clean_ingredients
         if request.form['directions']:
-            editedRecipe.directions=request.form['directions']
+            editedRecipe.directions=clean_directions
         if request.form['type']:
             editedRecipe.type=request.form['type']
         session.add(editedRecipe)
@@ -275,9 +326,14 @@ def personalCookbookEdit(cookbook_id, recipes_id):
 
 @app.route('/cornershelf/u/<int:cookbook_id>/<int:recipes_id>/delete', methods=['GET', 'POST'])
 def personalCookbookDelete(cookbook_id, recipes_id):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook=session.query(Cookbook).filter_by(id=cookbook_id).one()
     deleterecipe = session.query(Recipes).filter_by(id=recipes_id).one()
-    if cookbook.userID != login_session['user_id']:
+    owner=getUserInfo(cookbook.userID)
+    if 'username' not in login_session:
+        return redirect(url_for('publicrecipes', cookbook_id=cookbook_id, recipes_id=recipes_id))
+    if owner.id != login_session['user_id']:
         return redirect(url_for('publicrecipes', cookbook_id=cookbook_id, recipes_id=recipes_id))
     if request.method == 'POST':
         session.delete(deleterecipe)
