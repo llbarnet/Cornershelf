@@ -30,7 +30,8 @@ class Cookbook(Base) :
         return {
             'id' : self.id,
             'name' : self.name,
-            }
+            'userID'  : self.userID,
+             }
 
 class Recipes(Base) :
      __tablename__ = 'recipes'
