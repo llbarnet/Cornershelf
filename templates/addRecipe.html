@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab|Montserrat|Pacifico|Slabo+27px" rel="stylesheet">
     <meta charset="utf-8">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+
     <title>CornerShelf</title>
   </head>
   <body>
-    <h1>CornerShelf</h1>
-    <a href='{{url_for('gdisconnect')}}'> Logout </a>
+    <div class='grid_header'>
+    <div><h1>CornerShelf</h1></div>
+    <div><a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+    <div><a href="{{url_for('homepage')}}">Home</a></div>
+    </div>
   </br>
-    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id)}}">Back to {{cookbook.name}}</a>
+
+    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id)}}" id='create_button'>Back to {{cookbook.name}}</a>
   </br>
- <h1>Add Recipe</h1>
+ <h2>Add A Recipe</h2>
  <form action='#' method='post'>
 
     <p>Recipe Name</p>
@@ -21,23 +28,31 @@
     <p>Directions</p>
       <input type="text" size="800" name="directions">
     <p>Type</p>
-    <input type ='radio'  name='type' value ='Breakfast'>Breakfast</br>
-    <input type ='radio'  name='type' value ='Appetizer'>Appetizer</br>
-    <input type ='radio'  name='type' value ='Soup'>Soup</br>
-    <input type ='radio'  name='type' value ='Salad'>Salad</br>
-    <input type ='radio'  name='type' value ='Sides'>Sides</br>
-    <input type ='radio'  name='type' value ='Lunch'>Lunch</br>
-    <input type ='radio'  name='type' value ='Dinner'>Dinner</br>
-    <input type ='radio'  name='type' value ='Dessert'>Dessert</br>
-    <input type ='radio'  name='type' value ='Drinks'>Drinks</br>
+    <div class='checked_grid'>
+  <div>  <input type=radio name="recipe_type" value='Breakfast'>Breakfast</option></div>
+  <div>  <input type=radio name="recipe_type" value ='Appetizer'>Appetizer</option></div>
+  <div>  <input type=radio name="recipe_type" value ='Soup'>Soup</input></div>
+  <div>  <input type=radio name="recipe_type" value ='Salad'>Salad</input></div>
+  <div>  <input type=radio name="recipe_type" value ='Sides'>Sides</input></div>
+  <div>  <input type=radio name="recipe_type" value ='Lunch'>Lunch</input></div>
+  <div>  <input type=radio name="recipe_type" value ='Dinner'>Dinner</input></div>
+  <div>  <input type=radio name="recipe_type" value ='Dessert'>Dessert</input></div>
+ <div>   <input type=radio name="recipe_type" value ='Drinks'>Drinks</input></div>
+</div>
+</br>
 
+<script>
+function myFunction() {
+    var type = document.getElementById("recipe_type");
 
+}
+</script>
 
-<input type='submit' value='create'>
+<input type='submit' value='Create!'>
 </form>
 
-    <a href="{{url_for('search')}}">Search for a recipe instead!</a>
-    <a href="{{url_for('homepage')}}">Home</a>
+
+
 
 
 

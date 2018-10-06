@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab|Montserrat|Pacifico|Slabo+27px" rel="stylesheet">
     <meta charset="utf-8">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+  
     <title>CornerShelf</title>
   </head>
   <body>
-    <h1>CornerShelf</h1>
-    <a href='{{url_for('gdisconnect')}}'> Logout </a>
+    <div class='grid_header'>
+    <div><h1>CornerShelf</h1></div>
+    <div><a href="{{url_for('homepage')}}">Home</a></div>
+    <div><a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+    </div>
 
- <h1>Create a Cookbook!</h1>
+    </br>
+ <h2>Create a Cookbook!</h2>
+<div class="wrapper">
  <form action='#' method='post'>
 
     <p>Cookbook Name</p>
        <input type="text" size='80' name="name">
 
-<input type='submit' value='create'>Create!</br>
+<input type='submit' value='Create!'>
+</div>
 </form>
 
-    <a href="{{url_for('homepage')}}">Home</a>
+
 
 
 

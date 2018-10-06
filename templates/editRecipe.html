@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab|Montserrat|Pacifico|Slabo+27px" rel="stylesheet">
     <meta charset="utf-8">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
     <title>CornerShelf</title>
   </head>
   <body>
-    <h1>CornerShelf</h1>
-    <a href='{{url_for('gdisconnect')}}'> Logout </a></br>
-
+    <div class='grid_header'>
+    <div><h1>CornerShelf</h1></div>
+    <div><a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+    <div><a href="{{url_for('homepage')}}">Home</a></div>
+    </div>
+</br>
     <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}">Back to {{cookbook.name}}</a>
+  </br>
 
 
-  <h1> Edit Your Recipe </h1>
+  <h2> Edit Your Recipe </h2>
 
     <form action="#" method = 'post'>
 
@@ -24,73 +30,77 @@
     	<p>Directions</p>
     		<input type ='text' size='800' name='directions' placeholder = '{{recipes.directions}}'>
     	<p>Type<p>
+
+<div class='checked_grid'>
+  <div>
         {% if recipes.type == 'Breakfast'%}
-          <dd><input type ='radio' name='type' value='Breakfast'checked >Breakfast</dd>
-
-        {% else %}
-           <dd><input type ='radio' name='type' value='Breakfast'>Breakfast</dd>
-
+        <input type=radio name="recipe_type" value='Breakfast' checked>Breakfast</input>
+            {% else %}
+        <input type=radio name="recipe_type" value='Breakfast' >Breakfast</option>
+          {% endif %}
+</div>
+<div>
+        {% if recipes.type == 'Appetizer'%}
+          <input type=radio name="recipe_type" value='Appetizer' checked>Appetizer</input>
+              {% else %}
+          <input type=radio name="recipe_type" value='Appetizer' >Appetizer</option>
         {% endif %}
-
-    	{% if recipes.type == 'Appetizer' %}
-    		<dd><input type ='radio' name='type' value='Appetizer'checked >Appetizer</dd>
-    	{%else%}
-    	<dd><input type ='radio' name='type' value='Appetizer' >Appetizer</dd>
+</div>
+<div>
+        {% if recipes.type == 'Soup'%}
+            <input type=radio name="recipe_type" value='Soup' checked>Soup</input>
+                {% else %}
+            <input type=radio name="recipe_type" value='Soup' >Soup</option>
+          {% endif %}
+</div>
+<div>
+        {% if recipes.type == 'Salad'%}
+              <input type=radio name="recipe_type" value='Salad' checked>Salad</input>
+                  {% else %}
+              <input type=radio name="recipe_type" value='Salad' >Salad</option>
         {% endif %}
-
-        {% if recipes.type == 'Soup' %}
-           <dd><input type ='radio' name='type' value='Soup' checked>Soup</dd>
-
-        {%else%}
-    		<dd><input type ='radio' name='type' value='Soup'>Soup</dd>
+</div>
+<div>
+        {% if recipes.type == 'Sides'%}
+              <input type=radio name="recipe_type" value='Sides' checked>Sides</input>
+                  {% else %}
+              <input type=radio name="recipe_type" value='Sides' >Sides</option>
         {% endif %}
+</div>
+<div>
+        {% if recipes.type == 'Lunch'%}
+              <input type=radio name="recipe_type" value='Lunch' checked>Lunch</input>
+                  {% else %}
+              <input type=radio name="recipe_type" value='Lunch' >Lunch</option>
+        {% endif %}
+</div>
+<div>
+        {% if recipes.type == 'Dinner'%}
+              <input type=radio name="recipe_type" value='Dinner' checked>Dinner</input>
+                  {% else %}
+              <input type=radio name="recipe_type" value='Dinner' >Dinner</option>
+        {% endif %}
+</div>
+<div>
 
-    	{% if recipes.type == 'Salad'%}
-    		<dd><input type ='radio' name='type' value='Salad'checked >Salad</dd>
+    {% if recipes.type == 'Dessert'%}
+		<dd><input type ='radio' name='course' value='Dessert'checked >Dessert</dd>
 
-    	{% else %}
-    	   <dd><input type ='radio' name='type' value='Salad'>Salad</dd>
+	{% else %}
+	   <dd><input type ='radio' name='course' value='Dessert'>Dessert</dd>
 
-    	{% endif %}
-
-
-    	{%if recipes.type =='Sides'%}
-    		<dd><input type ='radio' name='type' value='Sides'checked >Sides</dd>
-    	{% else %}
-    		<dd><input type ='radio' name='type' value='Sides'>Sides</dd>
-    	{% endif %}
-
-      {% if recipes.type == 'Lunch'%}
-        <dd><input type ='radio' name='type' value='Lunch'checked >Lunch</dd>
-
-      {% else %}
-         <dd><input type ='radio' name='type' value='Lunch'>Lunch</dd>
-
-      {% endif %}
-
-      {% if recipes.type == 'Dinner'%}
-        <dd><input type ='radio' name='type' value='Dinner'checked >Dinner</dd>
-
-      {% else %}
-         <dd><input type ='radio' name='type' value='Dinner'>Dinner</dd>
-
-      {% endif %}
-
-      {% if recipes.type == 'Dessert'%}
-        <dd><input type ='radio' name='type' value='Dessert'checked >Dessert</dd>
-
-      {% else %}
-         <dd><input type ='radio' name='type' value='Dessert'>Dessert</dd>
-
-      {% endif %}
-
-      {% if recipes.type == 'Drinks'%}
-        <dd><input type ='radio' name='type' value='Drinks'checked >Drinks</dd>
-
-      {% else %}
-         <dd><input type ='radio' name='type' value='Drinks'>Drinks</dd>
-
-      {% endif %}
+	{% endif %}
+</div>
+<div>
+  {% if recipes.type == 'Drinks'%}
+        <input type=radio name="recipe_type" value='Drinks' checked>Drinks</input>
+            {% else %}
+        <input type=radio name="recipe_type" value='Drinks' >Drinks</option>
+  {% endif %}
+</div>
+    </br>
+  </br>
+  </div>
     <input type='submit' value='Edit'>
 
 
@@ -101,7 +111,7 @@
 
   <a href = '{{url_for('personalRecipe', cookbook_id=cookbook.id, recipes_id=recipes.id)}}'> Cancel </a>
 
-  <a href="{{url_for('homepage')}}">Home</a>
+
 
 
 

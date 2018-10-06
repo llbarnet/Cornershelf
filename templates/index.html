@@ -1,25 +1,35 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab|Montserrat|Pacifico|Slabo+27px" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
     <meta charset="utf-8">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
     <title>CornerShelf</title>
   </head>
+
 <body>
-<h1>CornerShelf</h1>
-<a href="{{url_for('login')}}"> Login </a>
-<a href='{{url_for('gdisconnect')}}'> Logout </a>
+<div class='grid_header'>
+<div><h1>CornerShelf</h1></div>
+<div><a href="{{url_for('login')}}" > Login </a></div>
+<div><a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+</div>
+
 </br>
-<a href='{{url_for('createCookbookNew')}}'>Create a Cookbook! </a>
 
-<p>Check out these awesome cookbooks!</p>
 
+<a href='{{url_for('createCookbookNew')}}' id="create_button">Create a Cookbook! </a>
+
+<h2>Check out these awesome cookbooks!</h2>
+
+<div class='cookbook_grid'>
 {% for cookbook in cookbooks %}
 
- <a href = "{{url_for('personalCookbook', cookbook_id = cookbook.id)}}"> <p>{{cookbook.name}}</p></a>
+   <div id='cookbook_item'><a href = "{{url_for('personalCookbook', cookbook_id = cookbook.id)}}"> <h3>{{cookbook.name}}</h3></a></div>
 
 {% endfor %}
-
+</div>
 
 
 </body>

@@ -1,28 +1,37 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab|Montserrat|Pacifico|Slabo+27px" rel="stylesheet">
     <meta charset="utf-8">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+      
     <title>CornerShelf</title>
   </head>
   <body>
-    <h1>CornerShelf</h1>
-    <a href='{{url_for('gdisconnect')}}'> Logout </a>
+    <div class='grid_header'>
+    <div><h1>CornerShelf</h1></div>
+    <div> <a href="{{url_for('homepage')}}">Home</a></div>
+    <div><a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+    </div>
 
-    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}">Back to {{cookbook.name}}</a>
+    </br>
+    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}" id='create_button'>Back to {{cookbook.name}}</a>
 
 
 
-    <h1>Do you want to delete {{recipes.name}}?</h1>
-
+    <h2>Do you want to delete {{recipes.name}}?</h2>
+<div class='wrapper'>
   <form action='#' method = 'post'>
 
-  <input type='submit' value='Delete'>Bye Bye Recipe</br>
+  <input type='submit' value='Bye Bye Recipe'>
 
   </form>
+</div>
+</br>
+</br>
 
   <a href = '{{url_for('personalRecipe', cookbook_id=cookbook.id, recipes_id=recipes.id)}}'> Cancel </a>
-    <a href="{{url_for('homepage')}}">Home</a>
+
 
 
 

@@ -1,25 +1,35 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Slab|Montserrat|Pacifico|Slabo+27px|Raleway:600i" rel="stylesheet">
     <meta charset="utf-8">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    
     <title>CornerShelf</title>
   </head>
   <body>
-    <h1>CornerShelf</h1>
-    <a href='{{url_for('gdisconnect')}}'> Logout </a>
+    <div class='grid_header'>
+    <div><h1>CornerShelf</h1></div>
+    <div><a href="{{url_for('homepage')}}">Home</a></div>
+    <div>  <a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+    </div>
+  </br>
+    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}" id="create_button">Back to {{cookbook.name}}</a>
 
-    <a href="{{url_for('personalCookbook', cookbook_id=cookbook.id )}}">Back to {{cookbook.name}}</a>
+    <h3 id="recipe_title">{{ recipes.name }}</h3>
+    <div class="wrapper">
+    <p>Type: {{ recipes.type }}</p>
+    <p>Ingredients: {{ recipes.ingredients }}</p>
+    <p>Directions: {{ recipes.directions }}</p>
+    </div>
+  </br>
+</br>
 
-    <h1>{{ recipes.name }}</h1>
-    <h2>Type: {{ recipes.type }}</h2>
-    <h2>Ingredients: {{ recipes.ingredients }}</h2>
-    <h2>Directions: {{ recipes.directions }}</h2>
-
+<div class="footer_grid">
     <a href="{{url_for('personalCookbookEdit', cookbook_id=cookbook.id, recipes_id=recipes.id )}}">Edit Recipe</a>
     <a href="{{url_for('personalCookbookDelete', cookbook_id=cookbook.id, recipes_id=recipes.id )}}">Delete Recipe</a>
+</div>
 
-    <a href="{{url_for('homepage')}}">Home</a>
 
 
 
