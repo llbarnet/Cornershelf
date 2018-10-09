@@ -12,8 +12,13 @@
 <body>
 <div class='grid_header'>
 <div><h1>CornerShelf</h1></div>
-<div><a href="{{url_for('login')}}" > Login </a></div>
-<div><a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+
+{% if user == 'yes' %}
+      <div><a href='{{url_for('gdisconnect')}}'> Logout </a></div>
+    {% else %}
+      <div><a href="{{url_for('login')}}" > Login </a></div>
+    {% endif %}
+
 </div>
 
 </br>
