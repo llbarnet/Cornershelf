@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from flask import redirect, session, jsonify, url_for, flash, abort, g
 from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, exc
 from cornershelfdb_setup import Base, Cookbook, Recipes, User
 from flask import session as login_session
 import json
@@ -16,6 +16,7 @@ import bleach
 
 app = Flask(__name__)
 
+# load client secret to allow for google OAuth credentials
 CLIENT_ID = json.loads(open(
     'client_secrets.json', 'r').read())['web']['client_id']
 
@@ -29,9 +30,10 @@ session = DBSession()
 connect_args = {'check_same_thread': False}
 
 
-# login page with gplus
+# login page with google oauth credentials
 @app.route('/cornershelf/login')
 def login():
+    """This method will allow for a random string token to be created"""
     state = ''.join(
         random.choice(
             string.ascii_uppercase + string.digits) for x in range(32))
@@ -41,6 +43,7 @@ def login():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """get the user information from google credentials in json to parse"""
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
@@ -110,7 +113,13 @@ def gconnect():
     data = answer.json()
 
     login_session['email'] = data['email']
-    login_session['username'] = data['name']
+
+    # check to see that data has name from login_session
+
+    if data.get('name') is not None:
+        login_session['username'] = data['name']
+    else:
+        login_session['username'] = data['email'].split('@')[0]
 
     # see if user exists, if it doesn't make a new one
 
@@ -132,7 +141,7 @@ def gconnect():
 
 def createUser(login_session):
     newUser = User(
-        username=login_session['name'], email=login_session['email'])
+        username=login_session['username'], email=login_session['email'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
@@ -145,7 +154,7 @@ def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
-    except usererror:
+    except exc.SQLAlchemyError:
         return None
 
 
@@ -159,7 +168,7 @@ def getUserInfo(user_id):
 
 @app.route('/logout')
 def gdisconnect():
-    # disconnect a connected user.
+    """This method deletes a users login_session and logs them out"""
     access_token = login_session.get('access_token')
     if access_token is None:
         response = make_response(
@@ -216,18 +225,24 @@ def allcookbooksJSON():
 @app.route('/')
 @app.route('/cornershelf/')
 def homepage():
+    """show all current cookbooks in the database"""
+    if 'username' not in login_session:
+        user = 'no'
+    else:
+        user = 'yes'
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
     cookbooks = session.query(Cookbook).all()
-    return render_template('index.html', cookbooks=cookbooks)
+    return render_template('index.html', cookbooks=cookbooks, user=user)
 
 # public cookbook view
 
 
 @app.route('/cornershelf/<int:cookbook_id>')
 def cookbookpublic(cookbook_id):
-    # DBSession = sessionmaker(bind = engine)
-    # session = DBSession()
+    """Show all recipes in a current cookbook in the database"""
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook = session.query(Cookbook).filter_by(id=cookbook_id).one()
     recipes = session.query(Recipes).filter_by(
         cookbookID=cookbook_id).all()
@@ -240,8 +255,9 @@ def cookbookpublic(cookbook_id):
 
 @app.route('/cornershelf/<int:cookbook_id>/<int:recipes_id>')
 def publicrecipes(cookbook_id, recipes_id):
-    # DBSession = sessionmaker(bind = engine)
-    # session = DBSession()
+    """Show the recipe information from the recipe indicated in the route"""
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook = session.query(Cookbook).filter_by(id=cookbook_id).one()
     recipes = session.query(Recipes).filter_by(
         cookbookID=cookbook_id).filter_by(id=recipes_id).one()
@@ -254,6 +270,7 @@ def publicrecipes(cookbook_id, recipes_id):
 
 @app.route('/cornershelf/createcookbook', methods=['GET', 'POST'])
 def createCookbookNew():
+    """This method allows a logged in user to create a cookbook"""
     if 'username' not in login_session:
         return redirect('cornershelf/login')
     if request.method == 'POST':
@@ -273,8 +290,9 @@ def createCookbookNew():
 
 @app.route('/cornershelf/u/<int:cookbook_id>')
 def personalCookbook(cookbook_id):
-    # DBSession = sessionmaker(bind = engine)
-    # session = DBSession()
+    """Shows a cookbook to the owner has add recipe option"""
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook = session.query(Cookbook).filter_by(id=cookbook_id).one()
     recipes = session.query(Recipes).filter_by(cookbookID=cookbook_id).all()
     owner = getUserInfo(cookbook.userID)
@@ -291,8 +309,9 @@ def personalCookbook(cookbook_id):
 
 @app.route('/cornershelf/u/<int:cookbook_id>/<int:recipes_id>')
 def personalRecipe(cookbook_id, recipes_id):
-    # DBSession = sessionmaker(bind = engine)
-    # session = DBSession()
+    """method allows owner of cookbook to display a recipe"""
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook = session.query(Cookbook).filter_by(id=cookbook_id).one()
     recipes = session.query(Recipes).filter_by(
         cookbookID=cookbook_id).filter_by(id=recipes_id).one()
@@ -311,8 +330,9 @@ def personalRecipe(cookbook_id, recipes_id):
 
 @app.route('/cornershelf/u/<int:cookbook_id>/add', methods=['GET', 'POST'])
 def personalCookbookAdd(cookbook_id):
-    # DBSession = sessionmaker(bind = engine)
-    # session = DBSession()
+    """Method to add a recipe to owners cookbook"""
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook = session.query(Cookbook).filter_by(id=cookbook_id).one()
     owner = getUserInfo(cookbook.userID)
     if 'username' not in login_session:
@@ -343,8 +363,9 @@ def personalCookbookAdd(cookbook_id):
             '/cornershelf/u/<int:cookbook_id>/<int:recipes_id>/edit',
             methods=['GET', 'POST'])
 def personalCookbookEdit(cookbook_id, recipes_id):
-    # DBSession = sessionmaker(bind=engine)
-    # session = DBSession()
+    """Method allows owner to edit their personal recipe"""
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook = session.query(Cookbook).filter_by(id=cookbook_id).one()
     editedRecipe = session.query(Recipes).filter_by(id=recipes_id).one()
     owner = getUserInfo(cookbook.userID)
@@ -383,8 +404,9 @@ def personalCookbookEdit(cookbook_id, recipes_id):
     '/cornershelf/u/<int:cookbook_id>/<int:recipes_id>/delete',
     methods=['GET', 'POST'])
 def personalCookbookDelete(cookbook_id, recipes_id):
-    # DBSession = sessionmaker(bind = engine)
-    # session = DBSession()
+    """method allows owner to delete a recipe"""
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     cookbook = session.query(Cookbook).filter_by(id=cookbook_id).one()
     deleterecipe = session.query(Recipes).filter_by(id=recipes_id).one()
     owner = getUserInfo(cookbook.userID)
