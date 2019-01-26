@@ -5,6 +5,7 @@
   To properly run the web app on your local machine you will need **python**, **sql**, **flask**, and **sqlAlchemy** installed on your machine.
 
   To allow for successful logins you will need to set up a google OAuth credential.
+  
     1. Go to Google's OAuth [page](https://console.developers.google.com/apis).
     2. Create a project and after select **Credentials** from the menu on the left. Create am **OAuth CLient ID**.
     3. Configure the consent screen and select Web Application.
